@@ -1,6 +1,6 @@
 const redis = require("redis");
 const {
-  redis: { host, port, username, password },
+  redis: { host, port, username, password, db_name },
 } = require("./config");
 
 class RedisConf {
@@ -10,8 +10,7 @@ class RedisConf {
 
   connect() {
     const client = redis.createClient({
-      port: port,
-      host: host,
+      url: `redis://${username}:${password}@${host}:${port}`,
     });
 
     client.on("connect", () => {
@@ -32,5 +31,5 @@ class RedisConf {
   }
 }
 
-// const instanceRedis = RedisConf.getInstance();
-// module.exports = instanceRedis;
+const instanceRedis = RedisConf.getInstance();
+module.exports = instanceRedis;
