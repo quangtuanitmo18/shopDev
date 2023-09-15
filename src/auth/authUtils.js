@@ -106,6 +106,7 @@ const authenticationV2 = catchAsync(async (req, res, next) => {
 
   // 2. check keyStore by userId
   const keyStore = await KeyTokenService.findByUserId(userId);
+
   if (!keyStore) throw new Api404Error("Resource not found");
 
   // 3. get refreshToken
