@@ -1,19 +1,20 @@
-const {model, Schema} = require("mongoose");
+const { model, Schema } = require("mongoose");
 
-const DOCUMENT_NAME = 'Cart';
-const COLLECTION_NAME = 'Carts';
+const DOCUMENT_NAME = "Cart";
+const COLLECTION_NAME = "Carts";
 
-const apiKeySchema = new Schema({
+const apiKeySchema = new Schema(
+  {
     cart_state: {
-        type: String,
-        require: true,
-        enum: ['active', 'completed', 'fail', 'pending', 'lock'],
-        default: 'active'
+      type: String,
+      require: true,
+      enum: ["active", "completed", "fail", "pending", "lock"],
+      default: "active",
     },
     cart_products: {
-        type: Array,
-        require: true,
-        default: []
+      type: Array,
+      require: true,
+      default: [],
     },
     /**
      * {
@@ -25,20 +26,21 @@ const apiKeySchema = new Schema({
      * }
      */
     cart_count_product: {
-        type: Number,
-        default: 0
+      type: Number,
+      default: 0,
     },
     cart_user_id: {
-        type: Number,
-        require: true
-    }
-
-}, {
+      type: Schema.Types.ObjectId,
+      require: true,
+    },
+  },
+  {
     collection: COLLECTION_NAME,
     timestamps: {
-        createdAt: 'createdOn',
-        updatedAt: 'modifiedOn'
+      createdAt: "createdOn",
+      updatedAt: "modifiedOn",
     },
-});
+  }
+);
 
-module.exports = model(DOCUMENT_NAME, apiKeySchema)
+module.exports = model(DOCUMENT_NAME, apiKeySchema);

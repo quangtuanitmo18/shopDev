@@ -2,6 +2,8 @@ const { findCartById } = require("../models/repositories/cart.repo");
 const { Api404Error, BusinessLogicError } = require("../core/error.response");
 const { checkProductByServer } = require("../models/repositories/product.repo");
 const { DiscountService } = require("./discount.service");
+const { acquireLock, releaseLock } = require("./redis.service");
+const order = require("../models/order.model");
 
 class OrderService {
   /*
@@ -47,12 +49,12 @@ class OrderService {
       const {
         shopId,
         shop_discounts = [],
-        itemProducts = [],
+        item_products = [],
       } = shop_order_ids[i];
 
       // check product available
-      const checkProductServer = await checkProductByServer(itemProducts);
-      if (!checkout_order[0]) throw new BusinessLogicError("Order invalid");
+      const checkProductServer = await checkProductByServer(item_products);
+      // if (!checkout_order[0]) throw new BusinessLogicError("Order invalid");
 
       // sum total order
       const checkoutPrice = checkProductServer.reduce((acc, product) => {
@@ -110,17 +112,39 @@ class OrderService {
         userId,
         shop_order_ids,
       });
+    // console.log(checkout_order, "-----------------------");
 
     // check lai mot lan nua xem ton kho hay k
     // get new array products
     const products = shop_order_ids_new.flatMap((order) => order.item_products);
     console.log("[1]::", products);
+    const acquireProduct = [];
 
     for (let i = 0; i < products.length; i++) {
       const { productId, quantity } = products[i];
+      const keyLock = await acquireLock(productId, quantity, cartId);
+      acquireProduct.push(keyLock ? true : false);
+      if (keyLock) {
+        await releaseLock(keyLock);
+      }
+    }
+    if (acquireProduct.includes("false")) {
+      throw new BusinessLogicError(
+        "mot so san pham da duoc cap nhat, vui long quay lai gio hang"
+      );
+    }
+    const newOrder = await order.create({
+      order_userId: userId,
+      order_checkout: checkout_order,
+      order_shipping: user_address,
+      order_payment: user_payment,
+      order_products: shop_order_ids_new,
+    });
+    if (newOrder) {
+      // remove product in cart
     }
 
-    return {};
+    return newOrder;
   }
 
   static async getOrderByUser() {}

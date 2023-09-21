@@ -25,13 +25,13 @@ class DiscountService {
       users_used,
       value,
       max_value,
-      max_users,
+      max_uses,
       users_count,
       max_uses_per_user,
     } = payload;
 
     // validate
-    if (new Date() > new Date(start_date) || new Date() > new Date(end_date)) {
+    if (new Date() > new Date(end_date)) {
       throw new BusinessLogicError("Discount code has expired");
     }
 
@@ -61,7 +61,7 @@ class DiscountService {
       discount_max_value: max_value,
       discount_start_day: new Date(start_date),
       discount_end_day: new Date(end_date),
-      discount_max_uses: max_users,
+      discount_max_uses: max_uses,
       discount_uses_count: users_count,
       discount_users_used: users_used,
       discount_shop_id: shopId,
@@ -162,17 +162,17 @@ class DiscountService {
     }
 
     const {
-      discount_is_active,
       discount_max_uses,
       discount_start_date,
       discount_end_date,
       discount_min_order_value,
-
+      discount_is_active,
       discount_users_used,
       discount_type,
       discount_value,
       discount_max_uses_per_user,
     } = foundDiscount;
+    console.log(!discount_is_active, discount_is_active, foundDiscount);
     if (!discount_is_active) throw new BusinessLogicError("Discount expired");
     if (discount_max_uses === 0)
       throw new BusinessLogicError("Discount are out");
